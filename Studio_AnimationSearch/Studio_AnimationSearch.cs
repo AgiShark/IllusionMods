@@ -9,6 +9,7 @@
     using System.Reflection.Emit;
     using UnityEngine;
     using UnityEngine.UI;
+    using XUnity.AutoTranslator.Plugin.Core;
     using Debug = UnityEngine.Debug;
 
 
@@ -56,6 +57,7 @@
         private static Dictionary<int, Dictionary<int, Dictionary<int, Info.AnimeLoadInfo>>> animeListsFiltered;
         public void Start()
         {
+            Debug.Log("ds0");
 
             animeListsBase = Singleton<Info>.Instance.dicAnimeLoadInfo;
             groupListPanel = this.transform.Find("Group Panel").gameObject;
@@ -90,7 +92,15 @@
                 {
                     foreach (KeyValuePair<int, Info.AnimeLoadInfo> keyValuePairAnime in keyValuePairCategory.Value)
                     {
-                        if (keyValuePairAnime.Value.name.ToLower().Contains(searchPatern.ToLower()))
+                        string name = keyValuePairAnime.Value.name.ToLower();
+                        bool baseNameContains = name.Contains(searchPatern.ToLower());
+                        bool translationContains = false;
+                        if (!baseNameContains && AutoTranslator.Default.TryTranslate(name, out string translation))
+                        {
+                            Debug.Log(translation);
+                            translationContains = translation.ToLower().Contains(searchPatern.ToLower());
+                        }
+                        if (baseNameContains || translationContains)
                         {
 
                             if (!animeListsFiltered.ContainsKey(keyValuePairGroup.Key))
