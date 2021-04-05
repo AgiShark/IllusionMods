@@ -7,7 +7,7 @@ using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 
-namespace UIScalerAndWidscreenSupport
+namespace UIScalerAndWidescreenSupport
 {
     using Debug = UnityEngine.Debug;
 
@@ -17,8 +17,8 @@ namespace UIScalerAndWidscreenSupport
     [BepInProcess("HoneySelect2")]
 #endif
     [BepInProcess("StudioNEOV2")]
-    [BepInPlugin("hj." + "aihs2studio." + nameof(UIScalerAndWidscreenSupport), nameof(UIScalerAndWidscreenSupport), VERSION)]
-    public class UIScalerAndWidscreenSupport : BaseUnityPlugin
+    [BepInPlugin("hj." + "aihs2studio." + nameof(UIScalerAndWidescreenSupport), nameof(UIScalerAndWidescreenSupport), VERSION)]
+    public class UIScalerAndWidescreenSupport : BaseUnityPlugin
     {
         public const string VERSION = "1.0.0";
         public static ConfigEntry<float> ScaleConfig { get; set; }
@@ -26,7 +26,7 @@ namespace UIScalerAndWidscreenSupport
 
         public void Awake()
         {
-            Harmony.CreateAndPatchAll(typeof(UIScalerAndWidscreenSupport));
+            Harmony.CreateAndPatchAll(typeof(UIScalerAndWidescreenSupport));
             ScaleConfig = Config.Bind("Scale (might need restart)", "Scale", 1f, new ConfigDescription("Scale factor for the entire game UI.", new AcceptableValueRange<float>(0.1f, 2f)));
             SceneManager.sceneLoaded += OnSceneLoaded;
         }
@@ -35,7 +35,7 @@ namespace UIScalerAndWidscreenSupport
         {
             canvascale.matchWidthOrHeight = 1;
             canvascale.uiScaleMode = CanvasScaler.ScaleMode.ConstantPixelSize;
-            canvascale.scaleFactor = UIScalerAndWidscreenSupport.ScaleConfig.Value;
+            canvascale.scaleFactor = UIScalerAndWidescreenSupport.ScaleConfig.Value;
         }
 
         void OnSceneLoaded(Scene scene, LoadSceneMode mode)

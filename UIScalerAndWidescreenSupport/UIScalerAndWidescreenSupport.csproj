@@ -7,8 +7,8 @@
     <ProjectGuid>{FFF3B68D-5429-4425-BE02-F758F8F377ED}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>UIScalerAndWidscreenSupport</RootNamespace>
-    <AssemblyName>UIScalerAndWidscreenSupport</AssemblyName>
+    <RootNamespace>UIScalerAndWidescreenSupport</RootNamespace>
+    <AssemblyName>UIScalerAndWidescreenSupport</AssemblyName>
     <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <NuGetPackageImportStamp>

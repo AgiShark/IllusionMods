@@ -7,7 +7,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Studio_AnimationSearch", "S
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AprilFoolSpecial", "AprilFoolSpecial\AprilFoolSpecial.csproj", "{3957EA6C-246D-4CBC-84E9-CCD99F803932}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UIScalerAndWidscreenSupport", "UIScalerAndWidscreenSupport\UIScalerAndWidscreenSupport.csproj", "{FFF3B68D-5429-4425-BE02-F758F8F377ED}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UIScalerAndWidescreenSupport", "UIScalerAndWidescreenSupport\UIScalerAndWidescreenSupport.csproj", "{FFF3B68D-5429-4425-BE02-F758F8F377ED}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AI_ClothesAssignment", "AI_ClothesAssignment\AI_ClothesAssignment.csproj", "{48011A1F-9E3D-4291-95B6-1ECEF94CD8F1}"
 EndProject
