@@ -27,7 +27,7 @@ namespace UIScalerAndWidscreenSupport
         public void Awake()
         {
             Harmony.CreateAndPatchAll(typeof(UIScalerAndWidscreenSupport));
-            ScaleConfig = Config.Bind("Scale", "uiscale", 1f, new ConfigDescription("Scale factor for the entire game UI.", new AcceptableValueRange<float>(0.1f, 2f)));
+            ScaleConfig = Config.Bind("Scale (might need restart)", "Scale", 1f, new ConfigDescription("Scale factor for the entire game UI.", new AcceptableValueRange<float>(0.1f, 2f)));
             SceneManager.sceneLoaded += OnSceneLoaded;
         }
 
