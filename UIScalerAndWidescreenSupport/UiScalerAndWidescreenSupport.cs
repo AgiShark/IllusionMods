@@ -15,6 +15,8 @@ namespace UIScalerAndWidescreenSupport
     [BepInProcess("AI-Syoujyo")]
 #elif HS2
     [BepInProcess("HoneySelect2")]
+#elif KK
+    [BepInProcess("Koikatu")]
 #endif
     [BepInProcess("StudioNEOV2")]
     [BepInPlugin("hj." + "aihs2studio." + nameof(UIScalerAndWidescreenSupport), nameof(UIScalerAndWidescreenSupport), VERSION)]
