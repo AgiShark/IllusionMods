@@ -22,11 +22,13 @@ namespace PositionSelector
         public const string VERSION = "1.0.0";
         public static PositionSelector Instance;
         public static ConfigEntry<bool> isInEditMode { get; set; }
+        public static ConfigEntry<bool> unlockAll { get; set; }
         public static Dictionary<string, List<string>> charaFilters;
         public void Awake()
         {
             Harmony.CreateAndPatchAll(typeof(PositionSelector));
-            isInEditMode = Config.Bind("Option", "Edit mode", false, new ConfigDescription("Show all animation and allow you to reorder/hide them."));
+            isInEditMode = Config.Bind("Option", "Edit mode", false, new ConfigDescription("Toggle to switch to edit mode and start hidding some animation."));
+            unlockAll = Config.Bind("Option", "Unlock everything", false, new ConfigDescription("Show all animations regardless of personality"));
             Instance = this;
             charaFilters = new Dictionary<string, List<string>>();
             LoadSave();
@@ -106,7 +108,7 @@ namespace PositionSelector
         [HarmonyPatch(typeof(HSceneSprite), "CheckMotionLimit")]
         private static void CheckMotionLimitHook(ref HSceneSprite __instance, ref bool __result, HScene.AnimationListInfo lstAnimInfo)
         {
-            if (__result == false)
+            if (__result == false && unlockAll.Value)
             {
                 bool realyFalse = false;
                 if (__instance.chaFemales.Length > 1 && __instance.chaFemales[1] == null && (lstAnimInfo.ActionCtrl.Item1 == 4 || lstAnimInfo.ActionCtrl.Item1 == 5))
