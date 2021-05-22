@@ -19,7 +19,7 @@ namespace PositionSelector
     [BepInPlugin("hj." + "aihs2." + nameof(PositionSelector), nameof(PositionSelector), VERSION)]
     public class PositionSelector : BaseUnityPlugin
     {
-        public const string VERSION = "1.0.0";
+        public const string VERSION = "1.0.1";
         public static PositionSelector Instance;
         public static ConfigEntry<bool> isInEditMode { get; set; }
         public static ConfigEntry<bool> unlockAll { get; set; }
@@ -169,12 +169,12 @@ namespace PositionSelector
     {
 
         public AnimFilterInfoState state = AnimFilterInfoState.Show;
-        private string animeName;
+        private string animeId;
 
         public void Start()
         {
-            animeName = transform.GetComponent<HAnimationInfoComponent>().info.nameAnimation;
-            if (PositionSelector.charaFilters.ContainsKey(PositionSelector.GetCharaName()) && PositionSelector.charaFilters[PositionSelector.GetCharaName()].Contains(animeName))
+            animeId = transform.GetComponent<HAnimationInfoComponent>().info.nameAnimation + transform.GetComponent<HAnimationInfoComponent>().info.fileFemale + transform.GetComponent<HAnimationInfoComponent>().info.fileMale;
+            if (PositionSelector.charaFilters.ContainsKey(PositionSelector.GetCharaName()) && PositionSelector.charaFilters[PositionSelector.GetCharaName()].Contains(animeId))
             {
                 SetHidden();
             }
@@ -191,18 +191,18 @@ namespace PositionSelector
                         {
                             PositionSelector.charaFilters.Add(PositionSelector.GetCharaName(), new List<string>());
                         }
-                        if (!PositionSelector.charaFilters[PositionSelector.GetCharaName()].Contains(animeName))
+                        if (!PositionSelector.charaFilters[PositionSelector.GetCharaName()].Contains(animeId))
                         {
-                            PositionSelector.charaFilters[PositionSelector.GetCharaName()].Add(animeName);
+                            PositionSelector.charaFilters[PositionSelector.GetCharaName()].Add(animeId);
                         }
                     }
                     else
                     {
 
                         SetShow();
-                        if (PositionSelector.charaFilters.ContainsKey(PositionSelector.GetCharaName()) && PositionSelector.charaFilters[PositionSelector.GetCharaName()].Contains(animeName))
+                        if (PositionSelector.charaFilters.ContainsKey(PositionSelector.GetCharaName()) && PositionSelector.charaFilters[PositionSelector.GetCharaName()].Contains(animeId))
                         {
-                            PositionSelector.charaFilters[PositionSelector.GetCharaName()].Remove(animeName);
+                            PositionSelector.charaFilters[PositionSelector.GetCharaName()].Remove(animeId);
                         }
                         if (PositionSelector.charaFilters[PositionSelector.GetCharaName()].Count <= 0)
                         {
