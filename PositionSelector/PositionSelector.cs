@@ -13,13 +13,15 @@ using Debug = UnityEngine.Debug;
 namespace PositionSelector
 {
     using UnityEngine;
-
+#if HS2
     [BepInProcess("HoneySelect2")]
+#elif AI
     [BepInProcess("AI-Syoujyo")]
+#endif
     [BepInPlugin("hj." + "aihs2." + nameof(PositionSelector), nameof(PositionSelector), VERSION)]
     public class PositionSelector : BaseUnityPlugin
     {
-        public const string VERSION = "1.0.1";
+        public const string VERSION = "1.0.2";
         public static PositionSelector Instance;
         public static ConfigEntry<bool> isInEditMode { get; set; }
         public static ConfigEntry<bool> unlockAll { get; set; }
@@ -76,6 +78,7 @@ namespace PositionSelector
         {
             return Path.GetFileNameWithoutExtension(HSceneSprite.Instance.chaFemales[0].chaFile.charaFileName);
         }
+#if HS2
         [HarmonyPrefix]
         [HarmonyPatch(typeof(HSceneSprite), "OnChangePlaySelect", new[] { typeof(Toggle) })]
         private static bool OnButtonClick(Toggle objClick)
@@ -89,7 +92,7 @@ namespace PositionSelector
                 return true;
             }
         }
-
+#endif
         [HarmonyPrefix]
         [HarmonyPatch(typeof(HSceneSprite), "OnChangePlaySelect", new[] { typeof(GameObject) })]
         private static bool OnButtonClick2(GameObject objClick)
@@ -103,7 +106,7 @@ namespace PositionSelector
                 return true;
             }
         }
-
+#if HS2
         [HarmonyPostfix]
         [HarmonyPatch(typeof(HSceneSprite), "CheckMotionLimit")]
         private static void CheckMotionLimitHook(ref HSceneSprite __instance, ref bool __result, HScene.AnimationListInfo lstAnimInfo)
@@ -145,8 +148,28 @@ namespace PositionSelector
                 }
             }
         }
+#elif AI
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(HSceneSprite), "CheckMotionLimit")]
+        private static void CheckMotionLimitHook(ref HSceneSprite __instance, ref bool __result, HScene.AnimationListInfo lstAnimInfo)
+        {
+            if (__result == false && unlockAll.Value)
+            {
+                bool realyFalse = false;
+                if (!realyFalse)
+                {
+                    __result = true;
+                }
+            }
+        }
+#endif
+#if HS2
         [HarmonyPostfix]
         [HarmonyPatch(typeof(HAnimationInfoComponent), "OnEnable")]
+#else
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(HAnimationInfoComponent), "Start")]
+#endif
         private static void ApplyFilter(ref HAnimationInfoComponent __instance)
         {
             //Add the component
