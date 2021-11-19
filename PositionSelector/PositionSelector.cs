@@ -21,7 +21,7 @@ namespace PositionSelector
     [BepInPlugin("hj." + "aihs2." + nameof(PositionSelector), nameof(PositionSelector), VERSION)]
     public class PositionSelector : BaseUnityPlugin
     {
-        public const string VERSION = "2.0.0";
+        public const string VERSION = "2.0.1";
         public static PositionSelector Instance;
         public static ConfigEntry<bool> isInEditMode { get; set; }
         public static ConfigEntry<bool> unlockAll { get; set; }
@@ -291,6 +291,7 @@ namespace PositionSelector
 
                 }
             });
+            UpdateState();
         }
 
         void HandleEvent(object sender, object a)
