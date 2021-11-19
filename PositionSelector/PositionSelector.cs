@@ -21,20 +21,49 @@ namespace PositionSelector
     [BepInPlugin("hj." + "aihs2." + nameof(PositionSelector), nameof(PositionSelector), VERSION)]
     public class PositionSelector : BaseUnityPlugin
     {
-        public const string VERSION = "1.0.2";
+        public const string VERSION = "2.0.0";
         public static PositionSelector Instance;
         public static ConfigEntry<bool> isInEditMode { get; set; }
         public static ConfigEntry<bool> unlockAll { get; set; }
+        public static ConfigEntry<PositionPreset> positionPreset { get; set; }
+        private ConfigEntry<KeyboardShortcut> editModeSwitch { get; set; }
+
         public static Dictionary<string, List<string>> charaFilters;
+        public enum PositionPreset
+        {
+            [System.ComponentModel.DescriptionAttribute("one preset for each card")]
+            ByCharacter,
+            [System.ComponentModel.DescriptionAttribute("global preset 1")]
+            GlobalPreset1,
+            [System.ComponentModel.DescriptionAttribute("global preset 2")]
+            GlobalPreset2,
+            [System.ComponentModel.DescriptionAttribute("global preset 3")]
+            GlobalPreset3,
+            [System.ComponentModel.DescriptionAttribute("global preset 4")]
+            GlobalPreset4,
+            [System.ComponentModel.DescriptionAttribute("global preset 5")]
+            GlobalPreset5
+        }
         public void Awake()
         {
             Harmony.CreateAndPatchAll(typeof(PositionSelector));
-            isInEditMode = Config.Bind("Option", "Edit mode", false, new ConfigDescription("Toggle to switch to edit mode and start hidding some animation."));
-            unlockAll = Config.Bind("Option", "Unlock everything", false, new ConfigDescription("Show all animations regardless of personality"));
+            isInEditMode = Config.Bind("Edit Mode", "Edit mode", false, new ConfigDescription("Toggle to switch to edit mode and start hidding/unhidding some animation. You can also use the bellow shortcut to switch more easily."));
+            editModeSwitch = Config.Bind("Edit Mode", "Toggle edit mode shortcut", new KeyboardShortcut(KeyCode.R));
+            positionPreset = Config.Bind("User Preset", "Save changes in...", PositionPreset.GlobalPreset1, new ConfigDescription("Save the set of hidden position into : one preset for each card, or one of the 5 global presets that will be shared between cards."));
+
+            unlockAll = Config.Bind("Miscs", "Unlock everything", false, new ConfigDescription("Show all animations regardless of personality. NB : Some animation might not work if not available on the current map or with that set of character."));
+
             Instance = this;
             charaFilters = new Dictionary<string, List<string>>();
             LoadSave();
 
+        }
+        public void Update()
+        {
+            if (editModeSwitch.Value.IsDown())
+            {
+                isInEditMode.BoxedValue = !isInEditMode.Value;
+            }
         }
         public void OnDestroy()
         {
@@ -64,19 +93,48 @@ namespace PositionSelector
         private void Save()
         {
             string destination = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + "/PositionFilter.sav";
+            string destination200 = Path.Combine(Paths.GameRootPath, "UserData", "PositionSelector") + "/PositionFilter.sav";
             FileStream file;
 
-            if (File.Exists(destination)) file = File.OpenWrite(destination);
-            else file = File.Create(destination);
+            if (File.Exists(destination200))
+            {
+                file = File.OpenWrite(destination200);
+            }
+            else if (File.Exists(destination))
+            {
+                file = File.OpenWrite(destination);
+            }
+            else
+            {
+                Directory.CreateDirectory(Path.Combine(Paths.GameRootPath, "UserData", "PositionSelector"));
+                file = File.Create(destination200);
+            }
 
 
             BinaryFormatter bf = new BinaryFormatter();
             bf.Serialize(file, charaFilters);
             file.Close();
         }
-        public static string GetCharaName()
+        public static string GetPresetName()
         {
-            return Path.GetFileNameWithoutExtension(HSceneSprite.Instance.chaFemales[0].chaFile.charaFileName);
+            switch (positionPreset.Value)
+            {
+                case PositionPreset.ByCharacter:
+                    return Path.GetFileNameWithoutExtension(HSceneSprite.Instance.chaFemales[0].chaFile.charaFileName);
+                case PositionPreset.GlobalPreset1:
+                    return "GlobalPreset_1";
+                case PositionPreset.GlobalPreset2:
+                    return "GlobalPreset_2";
+                case PositionPreset.GlobalPreset3:
+                    return "GlobalPreset_3";
+                case PositionPreset.GlobalPreset4:
+                    return "GlobalPreset_4";
+                case PositionPreset.GlobalPreset5:
+                    return "GlobalPreset_5";
+                default:
+                    return "GlobalPreset_1";
+            }
+
         }
 #if HS2
         [HarmonyPrefix]
@@ -197,11 +255,8 @@ namespace PositionSelector
         public void Start()
         {
             animeId = transform.GetComponent<HAnimationInfoComponent>().info.nameAnimation + transform.GetComponent<HAnimationInfoComponent>().info.fileFemale + transform.GetComponent<HAnimationInfoComponent>().info.fileMale;
-            if (PositionSelector.charaFilters.ContainsKey(PositionSelector.GetCharaName()) && PositionSelector.charaFilters[PositionSelector.GetCharaName()].Contains(animeId))
-            {
-                SetHidden();
-            }
             PositionSelector.isInEditMode.SettingChanged += HandleEvent;
+            PositionSelector.positionPreset.SettingChanged += HandleEvent;
             GetComponent<Toggle>().onValueChanged.AddListener((bool value) =>
             {
                 if (value && PositionSelector.isInEditMode.Value)
@@ -210,26 +265,26 @@ namespace PositionSelector
                     {
                         //Hide it
                         SetHidden();
-                        if (!PositionSelector.charaFilters.ContainsKey(PositionSelector.GetCharaName()))
+                        if (!PositionSelector.charaFilters.ContainsKey(PositionSelector.GetPresetName()))
                         {
-                            PositionSelector.charaFilters.Add(PositionSelector.GetCharaName(), new List<string>());
+                            PositionSelector.charaFilters.Add(PositionSelector.GetPresetName(), new List<string>());
                         }
-                        if (!PositionSelector.charaFilters[PositionSelector.GetCharaName()].Contains(animeId))
+                        if (!PositionSelector.charaFilters[PositionSelector.GetPresetName()].Contains(animeId))
                         {
-                            PositionSelector.charaFilters[PositionSelector.GetCharaName()].Add(animeId);
+                            PositionSelector.charaFilters[PositionSelector.GetPresetName()].Add(animeId);
                         }
                     }
                     else
                     {
 
                         SetShow();
-                        if (PositionSelector.charaFilters.ContainsKey(PositionSelector.GetCharaName()) && PositionSelector.charaFilters[PositionSelector.GetCharaName()].Contains(animeId))
+                        if (PositionSelector.charaFilters.ContainsKey(PositionSelector.GetPresetName()) && PositionSelector.charaFilters[PositionSelector.GetPresetName()].Contains(animeId))
                         {
-                            PositionSelector.charaFilters[PositionSelector.GetCharaName()].Remove(animeId);
+                            PositionSelector.charaFilters[PositionSelector.GetPresetName()].Remove(animeId);
                         }
-                        if (PositionSelector.charaFilters[PositionSelector.GetCharaName()].Count <= 0)
+                        if (PositionSelector.charaFilters[PositionSelector.GetPresetName()].Count <= 0)
                         {
-                            PositionSelector.charaFilters.Remove(PositionSelector.GetCharaName());
+                            PositionSelector.charaFilters.Remove(PositionSelector.GetPresetName());
                         }
                     }
 
@@ -237,30 +292,45 @@ namespace PositionSelector
                 }
             });
         }
+
         void HandleEvent(object sender, object a)
         {
-            UpdateViewState();
+            UpdateState();
         }
         public void OnDestroy()
         {
             PositionSelector.isInEditMode.SettingChanged -= HandleEvent;
+            PositionSelector.positionPreset.SettingChanged -= HandleEvent;
         }
         public void SetHidden()
         {
             transform.Find("Background").GetComponent<Image>().color = new Color(1f, 0f, 0f);
             state = AnimFilterInfoState.Hide;
-            UpdateViewState();
+            UpdateView();
 
         }
         public void SetShow()
         {
             transform.Find("Background").GetComponent<Image>().color = new Color(1f, 1f, 1f);
             state = AnimFilterInfoState.Show;
-            UpdateViewState();
+            UpdateView();
         }
 
-        private void UpdateViewState()
+        private void UpdateState()
         {
+            if (PositionSelector.charaFilters.ContainsKey(PositionSelector.GetPresetName()) && PositionSelector.charaFilters[PositionSelector.GetPresetName()].Contains(animeId))
+            {
+                SetHidden();
+            }
+            else
+            {
+                SetShow();
+            }
+        }
+        private void UpdateView()
+        {
+
+
             if (PositionSelector.isInEditMode.Value)
             {
                 gameObject.SetActive(true);
