@@ -21,7 +21,7 @@ namespace PositionSelector
     [BepInPlugin("hj." + "aihs2." + nameof(PositionSelector), nameof(PositionSelector), VERSION)]
     public class PositionSelector : BaseUnityPlugin
     {
-        public const string VERSION = "2.0.1";
+        public const string VERSION = "2.0.2";
         public static PositionSelector Instance;
         public static ConfigEntry<bool> isInEditMode { get; set; }
         public static ConfigEntry<bool> unlockAll { get; set; }
@@ -72,12 +72,15 @@ namespace PositionSelector
         private void LoadSave()
         {
             string destination = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + "/PositionFilter.sav";
+            string destination200 = Path.Combine(Paths.GameRootPath, "UserData", "PositionSelector") + "/PositionFilter.sav";
             FileStream file;
 
-            if (File.Exists(destination))
+            if (File.Exists(destination200))
             {
-                Debug.Log(destination);
-                Debug.Log(File.Exists(destination));
+                file = File.OpenRead(destination200);
+            }
+            else if (File.Exists(destination))
+            {
                 file = File.OpenRead(destination);
             }
             else
