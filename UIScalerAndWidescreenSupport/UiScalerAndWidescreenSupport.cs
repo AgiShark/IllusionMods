@@ -1,4 +1,5 @@
-﻿using BepInEx;
+﻿using System;
+using BepInEx;
 using BepInEx.Configuration;
 using HarmonyLib;
 using System.Collections.Generic;
@@ -13,24 +14,32 @@ namespace UIScalerAndWidescreenSupport
 
 #if AI
     [BepInProcess("AI-Syoujyo")]
+    [BepInProcess("StudioNEOV2")]
 #elif HS2
     [BepInProcess("HoneySelect2")]
+    [BepInProcess("StudioNEOV2")]
 #elif KK
     [BepInProcess("Koikatu")]
+    [BepInProcess("CharaStudio")]
 #endif
-    [BepInProcess("StudioNEOV2")]
     [BepInPlugin("hj." + "aihs2studio." + nameof(UIScalerAndWidescreenSupport), nameof(UIScalerAndWidescreenSupport), VERSION)]
     public class UIScalerAndWidescreenSupport : BaseUnityPlugin
     {
-        public const string VERSION = "1.0.0";
+        public const string VERSION = "1.0.1";
         public static ConfigEntry<float> ScaleConfig { get; set; }
 
 
         public void Awake()
         {
-            Harmony.CreateAndPatchAll(typeof(UIScalerAndWidescreenSupport));
-            ScaleConfig = Config.Bind("Scale (might need restart)", "Scale", 1f, new ConfigDescription("Scale factor for the entire game UI.", new AcceptableValueRange<float>(0.1f, 2f)));
-            SceneManager.sceneLoaded += OnSceneLoaded;
+            ScaleConfig = Config.Bind("Scale", "Scale", 1f, new ConfigDescription("Scale factor for the entire game UI. Needs a game restart to take effect.", new AcceptableValueRange<float>(0.1f, 2f)));
+
+            if (Math.Abs(ScaleConfig.Value - 1f) > 0.01f)
+            {
+                Harmony.CreateAndPatchAll(typeof(UIScalerAndWidescreenSupport));
+                SceneManager.sceneLoaded += OnSceneLoaded;
+            }
+            else
+                enabled = false;
         }
 
         private static void RescaleUi(CanvasScaler canvascale)
