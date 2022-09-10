@@ -6,11 +6,12 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
-
+using Manager;
 
 namespace UIScalerAndWidescreenSupport
 {
     using Debug = UnityEngine.Debug;
+    using Scene = UnityEngine.SceneManagement.Scene;
 
 #if AI
     [BepInProcess("AI-Syoujyo")]
@@ -25,21 +26,24 @@ namespace UIScalerAndWidescreenSupport
     [BepInPlugin("hj." + "aihs2studio." + nameof(UIScalerAndWidescreenSupport), nameof(UIScalerAndWidescreenSupport), VERSION)]
     public class UIScalerAndWidescreenSupport : BaseUnityPlugin
     {
-        public const string VERSION = "1.0.1";
+        public const string VERSION = "1.0.2";
         public static ConfigEntry<float> ScaleConfig { get; set; }
+        public static ConfigEntry<bool> WideScreenConfig { get; set; }
 
 
         public void Awake()
         {
             ScaleConfig = Config.Bind("Scale", "Scale", 1f, new ConfigDescription("Scale factor for the entire game UI. Needs a game restart to take effect.", new AcceptableValueRange<float>(0.1f, 2f)));
+            WideScreenConfig = Config.Bind("WideScreenSupport", "Wide Screen Support On ?", false, new ConfigDescription("Scale factor for the entire game UI. Needs a game restart to take effect."));
 
-            if (Math.Abs(ScaleConfig.Value - 1f) > 0.01f)
+            if (WideScreenConfig.Value || (Math.Abs(ScaleConfig.Value - 1f) > 0.01f))
             {
                 Harmony.CreateAndPatchAll(typeof(UIScalerAndWidescreenSupport));
+
                 SceneManager.sceneLoaded += OnSceneLoaded;
             }
-            else
-                enabled = false;
+            else { enabled = false; }
+
         }
 
         private static void RescaleUi(CanvasScaler canvascale)
@@ -164,7 +168,27 @@ namespace UIScalerAndWidescreenSupport
             }
 
         }
+#if AI
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(HSceneManager), "HsceneEnter")]
+        private static void HSceneHook(ref HSceneManager __instance)
+        {
 
+            if (GameObject.Find("CommonSpace"))
+            {
+                GameObject.Find("CommonSpace").transform.Find("HSceneUISet").Find("Canvas").GetComponent<CanvasScaler>().uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+                FixRect(
+                    GameObject.Find("CommonSpace").transform.Find("HSceneUISet").Find("Canvas").Find("CanvasGroup").transform,
+                    new Vector2(0f, 0f),
+                    new Vector2(1f, 1f),
+                    Vector2.zero,
+                    Vector2.zero
+                );
+
+            }
+
+        }
+#endif
         /* Things i keep for future update -----
         
         private static List<string> canvasScalerGONames = new List<string> {
