@@ -61,18 +61,17 @@
 
             animeListsBase = Singleton<Info>.Instance.dicAnimeLoadInfo;
             groupListPanel = this.transform.Find("Group Panel").gameObject;
+            Transform parentSearchbar = groupListPanel.transform; 
 #if AI
             GameObject workspaceSearchbar = this.transform.parent.parent.parent.Find("Canvas Object List").Find("Image Bar").Find("Scroll View").Find("Search").gameObject;
-            searchBar = GameObject.Instantiate(workspaceSearchbar, this.transform);
+            searchBar = GameObject.Instantiate(workspaceSearchbar, parentSearchbar);
 #else
             GameObject workspaceSearchbar = this.transform.parent.parent.parent.Find("Canvas Object List").Find("Image Bar").Find("Scroll View").Find("Search").gameObject;
-            searchBar = GameObject.Instantiate(workspaceSearchbar, this.transform);
+            searchBar = GameObject.Instantiate(workspaceSearchbar, parentSearchbar);
 #endif
             RectTransform rect = searchBar.GetComponent<RectTransform>();
-            rect.anchorMin = new Vector2(0, 1);
-            rect.anchorMax = new Vector2(0, 1);
-            rect.offsetMin = new Vector2(0, -320f);
-            rect.offsetMax = new Vector2(250, -290f);
+            rect.offsetMin = new Vector2(0, -30f);
+            rect.offsetMax = new Vector2(130, 0f);
 
             InputField input = searchBar.GetComponent<InputField>();
             input.onEndEdit.RemoveAllListeners();
